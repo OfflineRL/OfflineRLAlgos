@@ -6,7 +6,7 @@ from offlinerl.utils.net.common import miniblock
 
 
 class Maple_actor(nn.Module):
-    def __init__(self, obs_dim, action_dim, deterministic=False, hidden_sizes=(16,), Guassain_hidden_sizes=(256,256), max_traj_len=5, LOG_MAX_STD=2, LOG_MIN_STD=-20, EPS=1e-8, lstm_hidden_unit=128):
+    def __init__(self, obs_dim, action_dim, deterministic=False, hidden_sizes=(16,), Guassain_hidden_sizes=(256,256), max_traj_len=5, LOG_MAX_STD=2, LOG_MIN_STD=-5, EPS=1e-8, lstm_hidden_unit=128):
         super(Maple_actor,self).__init__()
         self.obs_dim = obs_dim
         self.deterministic = deterministic
@@ -42,6 +42,7 @@ class Maple_actor(nn.Module):
         policy_z = torch.cat([policy_out, obs], dim=-1)
         out = self.Guassain_mlp(policy_z)
         mu = self.Guassain_mu_mlp(out)
+        mu = tf.clip_by_value(mu, -9, 9)
         log_std = self.Guassain_logstd_mlp(out)
         log_std = torch.clip(log_std, self.LOG_MIN_STD, self.LOG_MAX_STD)
         std = torch.exp(log_std)

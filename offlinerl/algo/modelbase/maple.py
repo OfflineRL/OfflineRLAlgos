@@ -264,7 +264,9 @@ class AlgoTrainer(BaseAlgo):
         current_nonterm = np.ones((len(obs)), dtype=bool)
         samples = None
         with torch.no_grad():
-            model_indexes = None
+            ensemble_number = np.random.randint(10, self.args['transition_select_num'])
+            sub_model_idx = np.random.randint(0, self.args['transition_select_num'], ensemble_number)
+            model_indexes = np.random.choice(sub_model_idx, size=obs.shape[0])
             obs = torch.from_numpy(obs).to(self.device)
             lst_action = torch.from_numpy(lst_action).to(self.device)
             hidden_policy = torch.from_numpy(hidden_policy_init).to(self.device)
@@ -287,8 +289,6 @@ class AlgoTrainer(BaseAlgo):
                 uncertainty = torch.clamp(uncertainty, max=self.args['penalty_clip'])
                 uncertainty_list.append(uncertainty.mean().item())
                 uncertainty_max.append(uncertainty.max().item())
-                if model_indexes is None:
-                    model_indexes = np.random.randint(0, next_obses.shape[0], size=(obs.shape[0]))
                 next_obs = next_obses[model_indexes, np.arange(obs.shape[0])]
                 reward = rewards[model_indexes, np.arange(obs.shape[0])]
 
@@ -411,7 +411,7 @@ class AlgoTrainer(BaseAlgo):
         loss = - dist.log_prob(torch.cat([data['obs_next'], data['rew']], dim=-1))
         loss = loss.sum()
         ''' calculation when not deterministic TODO: figure out the difference A: they are the same when Gaussian''' 
-        loss += 0.01 * (2. * transition.max_logstd).sum() - 0.01 * (2. * transition.min_logstd).sum()
+        loss += 0.01 * (2. * transition.max_logstd).mean() - 0.01 * (2. * transition.min_logstd).mean()
 
         optim.zero_grad()
         loss.backward()
