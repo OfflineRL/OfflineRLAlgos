@@ -292,7 +292,7 @@ class AlgoTrainer(BaseAlgo):
                 next_obs = next_obses[model_indexes, np.arange(obs.shape[0])]
                 reward = rewards[model_indexes, np.arange(obs.shape[0])]
 
-                term = is_terminal(obs.cpu().numpy(), act.cpu().numpy(), next_obs.cpu().numpy(), self.args['task'])
+                term = is_terminal(obs.cpu().numpy(), act.cpu().numpy(), next_obs.cpu().numpy(), self.args['task'],  obs_min, obs_max)
                 next_obs = torch.clamp(next_obs, obs_min, obs_max)
                 reward = torch.clamp(reward, rew_min, rew_max)
 
