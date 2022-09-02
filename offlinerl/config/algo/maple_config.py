@@ -36,8 +36,8 @@ hidden_layer_size = 256
 hidden_layers = 2
 transition_layers = 4
 
-transition_init_num = 20
-transition_select_num = 14
+transition_init_num = 50   # 50 for neoRL and 20 for D4RL
+transition_select_num = 36  # =transition_init_num/7*5
 
 real_data_ratio = 0.05
 
@@ -58,7 +58,7 @@ soft_target_tau = 5e-3
 horizon = 10
 lam = 0.25
 
-penalty_clip = 40
+penalty_clip = 20
 mode = 'normalize' # 'normalize', 'local', 'noRes'
 
 #tune

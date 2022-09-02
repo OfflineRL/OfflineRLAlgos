@@ -98,7 +98,14 @@ def termination_fn_humanoid(obs, act, next_obs):
     done = done[:,None]
     return done
 
-def is_terminal(obs,act, next_obs,task):
+def termination_fn_other(obs, act, next_obs, global_min_obs, global_max_obs):
+    obs_range = global_max_obs - global_min_obs
+    not_done = np.logical_and(np.all(next_obs > global_min_obs - obs_range, axis=-1), np.all(next_obs < global_max_obs + obs_range, axis=-1))
+    done = ~not_done
+    done = done[:, None]
+    return done
+
+def is_terminal(obs,act, next_obs, task, global_min_obs, global_max_obs):
     if 'halfcheetahvel' in task:
         return termination_fn_halfcheetahveljump(obs, act, next_obs)
     elif 'halfcheetah' in task:
@@ -119,3 +126,5 @@ def is_terminal(obs,act, next_obs,task):
         return termination_fn_pendulum(obs,act,next_obs)
     elif 'humanoid' in task:
         return termination_fn_humanoid(obs, act, next_obs)
+    else:
+        return termination_fn_other(obs, act, next_obs, global_min_obs, global_max_obs)
